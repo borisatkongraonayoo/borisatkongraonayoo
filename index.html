@@ -18,7 +18,7 @@
   var EXEC = "https://script.google.com/macros/s/AKfycbwtP7iFKQfR_IadOrp8qdxjlIycU8fYUhouFpb11rp1hjzM7gUA96sU7cfUpdVOGEQvYw/exec";
 
   var frame = document.getElementById("app"), msg = document.getElementById("msg");
-  if (/AKfycbwtP7iFKQfR_IadOrp8qdxjlIycU8fYUhouFpb11rp1hjzM7gUA96sU7cfUpdVOGEQvYw/.test(EXEC)) {
+  if (/PASTE_DEPLOYMENT_ID_HERE/.test(EXEC)) {
     msg.hidden = false;
     msg.textContent = "ยังไม่ได้ตั้งค่า: เปิดไฟล์ index.html แล้วแก้ค่า EXEC ให้เป็น URL ของเว็บแอป (ลงท้ายด้วย /exec)";
   } else {
