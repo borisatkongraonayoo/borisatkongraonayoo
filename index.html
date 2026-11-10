@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ระบบงานซ่อม</title>
-<style>
-  html, body { margin: 0; height: 100%; background: #f3f5f7; overflow: hidden; font-family: system-ui, sans-serif; }
-  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; }
-  #msg { padding: 24px; line-height: 1.6; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบงานบริหารจัดการ</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #f3f5f7;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-<iframe id="app" title="ระบบงานซ่อม" allow="clipboard-write; clipboard-read" hidden></iframe>
-<div id="msg" hidden></div>
-<script>
-  // วาง URL ของเว็บแอป Apps Script (ลงท้ายด้วย /exec) แทนข้อความด้านล่าง
-  var EXEC = "https://script.google.com/macros/s/AKfycbwtP7iFKQfR_IadOrp8qdxjlIycU8fYUhouFpb11rp1hjzM7gUA96sU7cfUpdVOGEQvYw/exec";
+  <iframe id="webappFrame" src="" allow="clipboard-read; clipboard-write"></iframe>
 
-  var frame = document.getElementById("app"), msg = document.getElementById("msg");
-  if (/PASTE_DEPLOYMENT_ID_HERE/.test(EXEC)) {
-    msg.hidden = false;
-    msg.textContent = "ยังไม่ได้ตั้งค่า: เปิดไฟล์ index.html แล้วแก้ค่า EXEC ให้เป็น URL ของเว็บแอป (ลงท้ายด้วย /exec)";
-  } else {
-    // ส่งต่อพารามิเตอร์ เช่น ?page=claims เพื่อให้เก็บเป็นบุ๊กมาร์กหน้าใดหน้าหนึ่งได้
-    frame.src = EXEC + (location.search || "");
-    frame.hidden = false;
-  }
-</script>
+  <script>
+    // 1. นำ URL ที่ลงท้ายด้วย /exec จากการ Deploy ใน Apps Script มาวางตรงนี้
+    const APPS_SCRIPT_EXEC_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+    // อ่านค่า query parameter (?page=...) จาก URL ของ GitHub Pages
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page') || 'tech';
+
+    // กำหนด src ให้กับ iframe เพื่อโหลดหน้าเพจที่ต้องการ
+    const iframe = document.getElementById('webappFrame');
+    iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${page}`;
+  </script>
 </body>
 </html>
