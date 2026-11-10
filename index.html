@@ -26,41 +26,40 @@
 </head>
 <body>
 
-  <!-- iframe สำหรับดึงหน้าเว็บจาก Apps Script มาแสดง -->
   <iframe id="webappFrame" src="" allow="clipboard-read; clipboard-write"></iframe>
 
   <script>
-    // URL Web App หลักของ Google Apps Script
+    // URL Web App จาก Google Apps Script ( URL ที่ลงท้ายด้วย /exec )
     const APPS_SCRIPT_EXEC_URL = "https://script.google.com/macros/s/AKfycbwtP7iFKQfR_IadOrp8qdxjlIycU8fYUhouFpb11rp1hjzM7gUA96sU7cfUpdVOGEQvYw/exec";
     const iframe = document.getElementById('webappFrame');
 
-    // ฟังก์ชั่นดึง Parameter จาก URL ของ GitHub Pages มาใส่ให้ iframe
+    // โหลดหน้าตาม Parameter ?page=...
     function loadPageFromURL() {
       const urlParams = new URLSearchParams(window.location.search);
       const page = urlParams.get('page') || 'tech'; // หน้าเริ่มต้นถ้าไม่ได้ระบุค่า
       iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${page}`;
     }
 
-    // ดักจับคำสั่งสลับหน้า (postMessage) ที่ส่งมาจากภายใน iframe
+    // ดักรับสัญญาณ postMessage จากปุ่มใน Apps Script เพื่อเปลี่ยนหน้า
     window.addEventListener('message', function(event) {
       if (event.data && event.data.type === 'CHANGE_PAGE') {
         const newPage = event.data.page;
         
-        // 1. อัปเดต URL บน Browser โดยไม่รีโหลดหน้า GitHub Pages ใหม่ทั้งหน้า
+        // อัปเดต URL บนแถบเบราว์เซอร์ของ GitHub Pages
         const newUrl = `${window.location.pathname}?page=${newPage}`;
         window.history.pushState({ page: newPage }, '', newUrl);
 
-        // 2. เปลี่ยน src ของ iframe ไปยังหน้าที่ต้องการ
+        // เปลี่ยนหน้าใน iframe
         iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${newPage}`;
       }
     });
 
-    // ตรวจจับเมื่อผู้ใช้กดปุ่ม ย้อนกลับ / ถอยหน้า (Back/Forward) บนเบราว์เซอร์
+    // ตรวจจับปุ่ม ย้อนกลับ / ถอยหน้า (Back/Forward) ของเบราว์เซอร์
     window.addEventListener('popstate', function(event) {
       loadPageFromURL();
     });
 
-    // สั่งโหลดหน้าครั้งแรกเมื่อเปิดเว็บ
+    // เรียกทำงานทันทีเมื่อเปิดหน้าเว็บ
     loadPageFromURL();
   </script>
 </body>
