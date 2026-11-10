@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบงานบริหารจัดการ</title>
+  <title>ระบบบริหารจัดการ</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -22,19 +25,43 @@
   </style>
 </head>
 <body>
+
+  <!-- iframe สำหรับดึงหน้าเว็บจาก Apps Script มาแสดง -->
   <iframe id="webappFrame" src="" allow="clipboard-read; clipboard-write"></iframe>
 
   <script>
-    // 1. นำ URL ที่ลงท้ายด้วย /exec จากการ Deploy ใน Apps Script มาวางตรงนี้
+    // URL Web App หลักของ Google Apps Script
     const APPS_SCRIPT_EXEC_URL = "https://script.google.com/macros/s/AKfycbwtP7iFKQfR_IadOrp8qdxjlIycU8fYUhouFpb11rp1hjzM7gUA96sU7cfUpdVOGEQvYw/exec";
-
-    // อ่านค่า query parameter (?page=...) จาก URL ของ GitHub Pages
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page') || 'tech';
-
-    // กำหนด src ให้กับ iframe เพื่อโหลดหน้าเพจที่ต้องการ
     const iframe = document.getElementById('webappFrame');
-    iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${page}`;
+
+    // ฟังก์ชั่นดึง Parameter จาก URL ของ GitHub Pages มาใส่ให้ iframe
+    function loadPageFromURL() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get('page') || 'tech'; // หน้าเริ่มต้นถ้าไม่ได้ระบุค่า
+      iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${page}`;
+    }
+
+    // ดักจับคำสั่งสลับหน้า (postMessage) ที่ส่งมาจากภายใน iframe
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'CHANGE_PAGE') {
+        const newPage = event.data.page;
+        
+        // 1. อัปเดต URL บน Browser โดยไม่รีโหลดหน้า GitHub Pages ใหม่ทั้งหน้า
+        const newUrl = `${window.location.pathname}?page=${newPage}`;
+        window.history.pushState({ page: newPage }, '', newUrl);
+
+        // 2. เปลี่ยน src ของ iframe ไปยังหน้าที่ต้องการ
+        iframe.src = `${APPS_SCRIPT_EXEC_URL}?page=${newPage}`;
+      }
+    });
+
+    // ตรวจจับเมื่อผู้ใช้กดปุ่ม ย้อนกลับ / ถอยหน้า (Back/Forward) บนเบราว์เซอร์
+    window.addEventListener('popstate', function(event) {
+      loadPageFromURL();
+    });
+
+    // สั่งโหลดหน้าครั้งแรกเมื่อเปิดเว็บ
+    loadPageFromURL();
   </script>
 </body>
 </html>
