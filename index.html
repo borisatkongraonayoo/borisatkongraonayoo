@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ระบบงานซ่อม</title>
+
+<!-- เพิ่ม Favicon ตรงนี้ -->
+<link rel="icon" type="image/png" href="URL_รูปโลโก้ของคุณ.png">
+
 <style>
   html, body { margin: 0; height: 100%; background: #f3f5f7; overflow: hidden; font-family: system-ui, sans-serif; }
   iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -14,25 +18,32 @@
 <iframe id="app" title="ระบบงานซ่อม" allow="clipboard-write; clipboard-read" hidden></iframe>
 <div id="msg" hidden></div>
 <script>
-  // วาง URL ของเว็บแอป Apps Script (ลงท้ายด้วย /exec) แทนข้อความด้านล่าง
+  // วาง URL ของเว็บแอป Apps Script (ลงท้ายด้วย /exec)
   var EXEC = "https://script.google.com/macros/s/AKfycbxiD5jvbKVruMFGj6V_Z-QCCYazTz7J224-V6GGfOPKEZU9JTdLgaNyIIjsjPVjUkB-/exec";
 
   var frame = document.getElementById("app"), msg = document.getElementById("msg");
-  if (/PASTE_DEPLOYMENT_ID_HERE/.test(EXEC)) {
+  
+  if (/PASTE_DEPLOYMENT_ID_HERE/.test(EXEC) || !EXEC) {
     msg.hidden = false;
-    msg.textContent = "ยังไม่ได้ตั้งค่า: เปิดไฟล์ index.html แล้วแก้ค่า EXEC ให้เป็น URL ของเว็บแอป (ลงท้ายด้วย /exec)";
+    msg.textContent = "ยังไม่ได้ตั้งค่า: โปรดตรวจสอบ URL ของเว็บแอป (ลงท้ายด้วย /exec)";
   } else {
     // ส่งต่อพารามิเตอร์ เช่น ?page=claims เพื่อให้เก็บเป็นบุ๊กมาร์กหน้าใดหน้าหนึ่งได้
     frame.src = EXEC + (location.search || "");
     frame.hidden = false;
   }
 
-  // แอปแจ้งหน้าปัจจุบันมาเมื่อสลับหน้า เก็บไว้ใน URL (เช่น ?page=claims) เพื่อให้รีเฟรชหรือบุ๊กมาร์กแล้วกลับมาหน้าเดิม
+  // แอปแจ้งหน้าปัจจุบันมาเมื่อสลับหน้า เก็บไว้ใน URL (เช่น ?page=claims)
   window.addEventListener("message", function (e) {
     var d = e.data;
     if (!d || typeof d.waPage !== "string" || !/^[a-z]{1,12}$/.test(d.waPage)) return;
-    if (!/(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(new URL(e.origin).hostname)) return;
-    try { history.replaceState(null, "", "?page=" + d.waPage); } catch (x) { }
+    
+    try {
+      var originUrl = new URL(e.origin);
+      if (!/(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(originUrl.hostname)) return;
+      history.replaceState(null, "", "?page=" + d.waPage);
+    } catch (x) { 
+      // จัดการข้อผิดพลาดกรณี Cross-Origin ป้องกันสคริปต์หยุดทำงาน
+    }
   });
 </script>
 </body>
